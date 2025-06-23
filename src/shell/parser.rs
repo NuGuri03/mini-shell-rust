@@ -1,7 +1,7 @@
 #[derive(Debug)]
 pub struct Command {
-    args: Vec<String>,
-    argc: usize,
+    pub args: Vec<String>,
+    pub argc: usize,
 }
 
 impl Command {
