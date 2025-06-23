@@ -12,7 +12,10 @@ impl Command {
 }
 
 pub fn parse_input(input: &str) -> Command {
-    let args = Vec::new();
+    let parsed_input = input
+        .split_ascii_whitespace()
+        .map(|s| s.to_string())
+        .collect();
 
-    Command::new(args)
+    Command::new(parsed_input)
 }
