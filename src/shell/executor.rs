@@ -40,6 +40,10 @@ fn execute_external_command(command: &Command) {
 }
 
 pub fn execute_command(command: Command) {
+    if command.argc <= 0 {
+        return;
+    }
+
     if execute_internal_command(&command) {
     } else {
         execute_external_command(&command);
