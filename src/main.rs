@@ -17,8 +17,8 @@ fn main() {
             break;
         }
 
-        let command = parser::parse_input(input);
-        executor::execute_command(command);
+        let commands = parser::parse_input(input);
+        executor::execute_command(commands);
     }
     println!("\nBye!");
 }

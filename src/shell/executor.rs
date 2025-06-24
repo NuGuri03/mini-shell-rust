@@ -29,7 +29,11 @@ fn execute_internal_command(command: &Command) -> bool {
 }
 
 fn execute_external_command(command: &Command) {
-    let command_name = command.args.get(0).map(String::as_str).expect("failed to get command");
+    let command_name = command
+        .args
+        .get(0)
+        .map(String::as_str)
+        .expect("failed to get command");
 
     std::process::Command::new(command_name)
         .args(command.args.get(1))
@@ -39,15 +43,10 @@ fn execute_external_command(command: &Command) {
         .expect("failed to wait on child");
 }
 
-pub fn execute_command(command: Command) {
-    if command.argc <= 0 {
-        return;
-    }
-
-    // pipe
-
-    if execute_internal_command(&command) {
-    } else {
-        execute_external_command(&command);
+pub fn execute_command(commands: Vec<Command>) {
+    for cmd in commands {
+        if !execute_internal_command(&cmd) {
+            execute_external_command(&cmd);
+        }
     }
 }
