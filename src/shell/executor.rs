@@ -28,10 +28,20 @@ fn execute_internal_command(command: &Command) -> bool {
     }
 }
 
+fn execute_external_command(command: &Command) {
+    let command_name = command.args.get(0).map(String::as_str).expect("failed to get command");
+
+    std::process::Command::new(command_name)
+        .args(command.args.get(1))
+        .spawn()
+        .expect("failed to execute process")
+        .wait()
+        .expect("failed to wait on child");
+}
+
 pub fn execute_command(command: Command) {
     if execute_internal_command(&command) {
-        return;
     } else {
-        unimplemented!()
+        execute_external_command(&command);
     }
 }
