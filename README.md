@@ -48,17 +48,14 @@ Load commands from `.myshellrc` at launch
 ```bash
 mini-shell-rust/
 ├── src/
-│   ├── main.rs
+│   ├── shell.rs
 │   ├── shell/
-│   │   ├── mod.rs 
+│   │   ├── parser.rs 
 │   │   └── executor.rs   
+│   ├── io.rs
 │   ├── io/
-│   │   ├── mod.rs 
 │   │   └── prompt.rs   
-│   ├── system/
-│   │   ├── mod.rs 
-│   │   └── process.rs   
-│   └── utils.rs   
+│   └── main.rs   
 ├── .gitignore        
 ├── Cargo.lock        
 ├── Cargo.toml        
