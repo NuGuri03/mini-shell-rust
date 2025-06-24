@@ -44,6 +44,8 @@ pub fn execute_command(command: Command) {
         return;
     }
 
+    // pipe
+
     if execute_internal_command(&command) {
     } else {
         execute_external_command(&command);
