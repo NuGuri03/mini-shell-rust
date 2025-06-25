@@ -35,8 +35,13 @@ fn execute_external_command(command: &Command) {
         .map(String::as_str)
         .expect("failed to get command");
 
+    let mut args = Vec::new();
+    for i in 1..command.args.len() {
+        args.push(command.args[i].clone());
+    }
+
     std::process::Command::new(command_name)
-        .args(command.args.get(1))
+        .args(args)
         .spawn()
         .expect("failed to execute process")
         .wait()

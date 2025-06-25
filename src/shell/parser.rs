@@ -35,13 +35,13 @@ fn tokenize_input(input: &str) -> Vec<String> {
             },
 
             InSingleQuote => match ch {
-                '"' => state = Normal,
+                '\'' => state = Normal,
                 '\\' => state = Escape,
                 _ => current.push(ch),
             },
 
             InDoubleQuote => match ch {
-                '\'' => state = Normal,
+                '"' => state = Normal,
                 '\\' => state = Escape,
                 _ => current.push(ch),
             },
@@ -73,14 +73,14 @@ fn parse_tokens(tokens: Vec<String>) -> Command {
             if i < tokens.len() {
                 stdout = Some(tokens[i].clone());
             } else {
-                eprintln!("failed to redirect")
+                eprintln!(">: failed to redirect")
             }
         } else if token == "<" {
             i += 1;
             if i < tokens.len() {
                 stdin = Some(tokens[i].clone());
             } else {
-                eprintln!("failed to redirect")
+                eprintln!("<: failed to redirect")
             }
         } else {
             args.push(token);
