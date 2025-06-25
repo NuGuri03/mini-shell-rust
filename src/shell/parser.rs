@@ -1,5 +1,6 @@
 #[derive(Debug)]
 pub struct Command {
+    pub name: String,
     pub args: Vec<String>,
     pub stdin: Option<String>,
     pub stdout: Option<String>,
@@ -87,8 +88,10 @@ fn parse_tokens(tokens: Vec<String>) -> Command {
         }
         i += 1;
     }
+    let name = args.remove(0);
 
     Command {
+        name,
         args,
         stdin,
         stdout,

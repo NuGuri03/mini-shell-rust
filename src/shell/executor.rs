@@ -1,8 +1,12 @@
 use crate::shell::parser::Command;
 
 fn execute_internal_command(command: &Command) -> bool {
-    match command.args.get(0).map(String::as_str) {
+    match Some(command.name.as_str()) {
         Some("cd") => {
+            if command.args.len() >= 2 {
+                eprintln!("cd: too many arguments");
+                return true;
+            }
             let target = command.args.get(1).map(String::as_str).unwrap_or_else(|| {
                 eprintln!("cd: missing argument");
                 return "";
@@ -11,6 +15,7 @@ fn execute_internal_command(command: &Command) -> bool {
             if !target.is_empty() {
                 if let Err(e) = std::env::set_current_dir(target) {
                     eprintln!("cd: {e}");
+                    return true;
                 }
             }
             true
@@ -29,19 +34,8 @@ fn execute_internal_command(command: &Command) -> bool {
 }
 
 fn execute_external_command(command: &Command) {
-    let command_name = command
-        .args
-        .get(0)
-        .map(String::as_str)
-        .expect("failed to get command");
-
-    let mut args = Vec::new();
-    for i in 1..command.args.len() {
-        args.push(command.args[i].clone());
-    }
-
-    std::process::Command::new(command_name)
-        .args(args)
+    std::process::Command::new(&command.name)
+        .args(&command.args)
         .spawn()
         .expect("failed to execute process")
         .wait()
@@ -50,6 +44,7 @@ fn execute_external_command(command: &Command) {
 
 pub fn execute_command(commands: Vec<Command>) {
     for cmd in commands {
+        println!("{:?}", cmd);
         if !execute_internal_command(&cmd) {
             execute_external_command(&cmd);
         }
