@@ -106,7 +106,7 @@ pub fn execute_command(commands: Vec<parser::Command>) {
             }
         }
 
-        let mut child = process.spawn().expect("faild to spawn child");
+        let mut child = process.spawn().expect("failed to spawn child");
         previous_stdout = child.stdout.take().map(process::Stdio::from);
         children.push(child);
     }

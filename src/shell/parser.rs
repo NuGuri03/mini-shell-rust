@@ -88,7 +88,12 @@ fn parse_tokens(tokens: Vec<String>) -> Command {
         }
         i += 1;
     }
-    let name = args.remove(0);
+    
+    let name = if !args.is_empty() {
+        args.remove(0)
+    } else {
+        String::new()
+    };
 
     Command {
         name,
