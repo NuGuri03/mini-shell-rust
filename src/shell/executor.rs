@@ -1,52 +1,74 @@
-use crate::shell::parser::Command;
+use crate::shell::parser;
+use crate::shell::redirect;
 
-fn execute_internal_command(command: &Command) -> bool {
+fn run_internal_command(command: &parser::Command) -> Result<bool, String> {
     match Some(command.name.as_str()) {
         Some("cd") => {
             if command.args.len() >= 2 {
-                eprintln!("cd: too many arguments");
-                return true;
+                return Err("cd: too many arguments".into());
             }
-            let target = command.args.get(1).map(String::as_str).unwrap_or_else(|| {
-                eprintln!("cd: missing argument");
-                return "";
-            });
+            let target = command
+                .args
+                .get(1)
+                .map(String::as_str)
+                .ok_or("cd: missing argument")?;
 
-            if !target.is_empty() {
-                if let Err(e) = std::env::set_current_dir(target) {
-                    eprintln!("cd: {e}");
-                    return true;
-                }
-            }
-            true
+            std::env::set_current_dir(target)
+                .map_err(|e| format!("cd: {e}"))?;
+
+            Ok(true)
         }
 
         Some("pwd") => {
-            if let Ok(path) = std::env::current_dir() {
-                println!("{}", path.display());
-            } else {
-                eprintln!("pwd: failed to get current directory");
-            }
-            true
+            let path = std::env::current_dir()
+                .map_err(|_| "pwd: failed to get current directory")?;
+
+            println!("{}", path.display());
+            Ok(true)
         }
-        _ => false,
+
+        _ => Ok(false),
     }
 }
 
-fn execute_external_command(command: &Command) {
-    std::process::Command::new(&command.name)
+fn run_external_command(command: &parser::Command) {
+    match std::process::Command::new(&command.name)
         .args(&command.args)
         .spawn()
-        .expect("failed to execute process")
-        .wait()
-        .expect("failed to wait on child");
+    {
+        Ok(mut child) => {
+            if let Err(e) = child.wait() {
+                eprintln!("bash: failed to wait for process: {}", e);
+            }
+        }
+        Err(_e) => {
+            eprintln!("bash: command not found: {}", command.name);
+        }
+    }
 }
 
-pub fn execute_command(commands: Vec<Command>) {
+pub fn execute_command(commands: Vec<parser::Command>) {
+    use nix::libc::dup;
+
     for cmd in commands {
-        println!("{:?}", cmd);
-        if !execute_internal_command(&cmd) {
-            execute_external_command(&cmd);
+
+        let stdin: i32;
+        let stdout: i32;
+
+        // backup stdin, stdout
+        unsafe {
+            stdin = dup(0);
+            stdout = dup(1);
         }
+
+        redirect::handle_redirection(&cmd);
+        
+        match run_internal_command(&cmd) {
+            Ok(true) => {},
+            Ok(false) => run_external_command(&cmd),
+            Err(msg) => eprintln!("{}", msg),
+        };
+
+        redirect::close_redirection(stdin, stdout);        
     }
 }
