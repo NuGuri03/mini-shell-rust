@@ -14,11 +14,14 @@ fn main() {
 
         let input = input.trim();
         if bytes_read == 0 || input == "exit" {
+            if bytes_read == 0 {
+                println!();
+            }
             break;
         }
 
-        let command = parser::parse_input(input);
-        executor::execute_command(command);
+        let commands = parser::parse_input(input);
+        executor::execute_command(commands);
     }
-    println!("\nBye!");
+    println!("Bye!");
 }
