@@ -47,28 +47,71 @@ fn run_external_command(command: &parser::Command) {
     }
 }
 
-pub fn execute_command(commands: Vec<parser::Command>) {
+fn execute_single_command(command: &parser::Command) {
     use nix::libc::dup;
 
-    for cmd in commands {
+    let stdin: i32;
+    let stdout: i32;
 
-        let stdin: i32;
-        let stdout: i32;
+    // backup stdin, stdout
+    unsafe {
+        stdin = dup(0);
+        stdout = dup(1);
+    }
 
-        // backup stdin, stdout
-        unsafe {
-            stdin = dup(0);
-            stdout = dup(1);
+    redirect::handle_redirection(&command);
+    
+    match run_internal_command(&command) {
+        Ok(true) => {},
+        Ok(false) => run_external_command(&command),
+        Err(msg) => eprintln!("{}", msg),
+    };
+
+    redirect::close_redirection(stdin, stdout);    
+}
+
+pub fn execute_command(commands: Vec<parser::Command>) {
+    if commands.len() == 1 {
+        let command = &commands[0];
+        execute_single_command(command);
+        return;    
+    }
+
+    use std::process;
+
+    let mut previous_stdout = None;
+    let mut children = Vec::new();
+
+    for (i, cmd) in commands.iter().enumerate() {
+        let mut process = process::Command::new(&cmd.name);
+        process.args(&cmd.args);
+
+        if let Some(stdout) = previous_stdout.take() {
+            process.stdin(stdout);
         }
 
-        redirect::handle_redirection(&cmd);
-        
-        match run_internal_command(&cmd) {
-            Ok(true) => {},
-            Ok(false) => run_external_command(&cmd),
-            Err(msg) => eprintln!("{}", msg),
-        };
+        if i < commands.len() - 1 {
+            process.stdout(process::Stdio::piped());
+        } else {
+            if let Some(ref output_file) = cmd.stdout {
+                let file = std::fs::File::create(output_file).expect("failed to create file");
+                process.stdout(process::Stdio::from(file));
+            }
+        }
 
-        redirect::close_redirection(stdin, stdout);        
+        if i == 0 {
+            if let Some(ref input_file) = cmd.stdin {
+                let file = std::fs::File::open(input_file).expect("failed to open file");
+                process.stdin(process::Stdio::from(file));
+            }
+        }
+
+        let mut child = process.spawn().expect("faild to spawn child");
+        previous_stdout = child.stdout.take().map(process::Stdio::from);
+        children.push(child);
+    }
+
+    for mut child in children {
+        child.wait().expect("failed to wait child");
     }
 }
