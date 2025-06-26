@@ -79,6 +79,8 @@ pub fn execute_command(commands: Vec<parser::Command>) {
 
     use std::process;
 
+    // TODO: background
+
     let mut previous_stdout = None;
     let mut children = Vec::new();
 
