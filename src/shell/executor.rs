@@ -1,6 +1,8 @@
 use crate::shell::parser;
 use crate::shell::redirect;
 
+use std::process;
+
 fn run_internal_command(command: &parser::Command) -> Result<bool, String> {
     match Some(command.name.as_str()) {
         Some("cd") => {
@@ -32,16 +34,17 @@ fn run_internal_command(command: &parser::Command) -> Result<bool, String> {
 }
 
 fn run_external_command(command: &parser::Command) {
-    match std::process::Command::new(&command.name)
-        .args(&command.args)
-        .spawn()
-    {
+    match process::Command::new(&command.name).args(&command.args).spawn() {
         Ok(mut child) => {
-            if let Err(e) = child.wait() {
-                eprintln!("bash: failed to wait for process: {}", e);
+            if command.is_background {
+                println!("[{}] {}", 1, child.id());
+            } else {
+                if let Err(e) = child.wait() {
+                    eprintln!("bash: failed to wait for process: {}", e);
+                }
             }
-        }
-        Err(_e) => {
+        },
+        Err(_) => {
             eprintln!("bash: command not found: {}", command.name);
         }
     }
@@ -77,8 +80,6 @@ pub fn execute_command(commands: Vec<parser::Command>) {
         return;    
     }
 
-    use std::process;
-
     let mut previous_stdout = None;
     let mut children = Vec::new();
 
@@ -111,7 +112,14 @@ pub fn execute_command(commands: Vec<parser::Command>) {
         children.push(child);
     }
 
-    for mut child in children {
-        child.wait().expect("failed to wait child");
+    let is_background = commands.last().map(|c| c.is_background).unwrap_or(false);
+
+    if is_background {
+        let pids: Vec<u32> = children.iter().map(|c| c.id()).collect();
+        println!("[{}] {:?}", 1, pids);
+    } else {
+        for mut child in children {
+            child.wait().expect("failed to wait child");
+        }
     }
 }
