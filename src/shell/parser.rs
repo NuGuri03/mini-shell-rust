@@ -4,7 +4,7 @@ pub struct Command {
     pub args: Vec<String>,
     pub stdin: Option<String>,
     pub stdout: Option<String>,
-    pub is_background : bool
+    pub is_background: bool
 }
 
 #[derive(Debug)]
