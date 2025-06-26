@@ -37,7 +37,7 @@ pub fn read_input(history: &mut History) -> String {
             // Enter('\n)
             b'\n' => {
                 println!();
-                if !command.trim().is_empty() {
+                if !command.is_empty() {
                     history.push(command.clone());
                 }
                 return command;
@@ -59,11 +59,14 @@ pub fn read_input(history: &mut History) -> String {
 
                 if seq == [91, 65] {
                     // up arrow
-                    if let Some(i) = history.index {
-                        if i > 0 {
-                            history.index = Some(i - 1);
-                        }
-                    } 
+                    if !command.is_empty() {
+                        if let Some(i) = history.index {
+                            if i > 0 {
+                                history.index = Some(i - 1);
+                            }
+                        } 
+                    }
+
                     if let Some(i) = history.index {
                         command = history.entries[i].clone();
                         print!("\r\x1b[2K");
@@ -75,6 +78,8 @@ pub fn read_input(history: &mut History) -> String {
                         if i + 1 < history.entries.len() {
                             history.index = Some(i + 1);
                             command = history.entries[history.index.unwrap()].clone();
+                        } else {
+                            command.clear();
                         }
                     }
 

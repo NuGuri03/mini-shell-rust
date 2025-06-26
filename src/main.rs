@@ -13,7 +13,6 @@ fn main() {
     let original_termios = raw_io::enable_raw_mode();
 
     loop {
-        history.push(String::from(""));
         io::prompt::print_prompt("");
 
         let input = raw_io::read_input(&mut history);

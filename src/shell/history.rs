@@ -15,11 +15,13 @@ impl History {
     }
 
     pub fn push(&mut self, entry: String) {
-        self.entries.push(entry);
-        if let Some(i) = self.index {
-            self.index = Some(i + 1);
-        } else {
-            self.index = Some(0);
+        if !entry.trim().is_empty() {
+            self.entries.push(entry);
+            if let Some(i) = self.index {
+                self.index = Some(i + 1);
+            } else {
+                self.index = Some(0);
+            }
         }
     }
 
