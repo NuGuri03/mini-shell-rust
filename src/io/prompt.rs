@@ -2,7 +2,7 @@ use std::io::{self, Write};
 
 use colored::Colorize;
 
-pub fn print_prompt() {
+pub fn print_prompt(command: &str) {
     let username = whoami::username();
     let host = whoami::devicename();
     let current_path = std::env::current_dir()
@@ -15,6 +15,6 @@ pub fn print_prompt() {
 
     let prompt = format!("{}:{}$ ", user_host, path);
 
-    print!("{}", prompt);
+    print!("{}{}", prompt, command);
     io::stdout().flush().expect("failed to stdout");
 }

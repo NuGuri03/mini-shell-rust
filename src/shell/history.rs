@@ -2,19 +2,24 @@ use std::fs::{File, OpenOptions};
 use std::io::{BufRead, BufReader, Write};
 
 pub struct History {
-    entries: Vec<String>,
+    pub entries: Vec<String>,
+    pub index: Option<usize>
 }
 
 impl History {
     pub fn new() -> Self {
         Self {
             entries: Vec::new(),
+            index: None
         }
     }
 
     pub fn push(&mut self, entry: String) {
-        if !entry.trim().is_empty() {
-            self.entries.push(entry);
+        self.entries.push(entry);
+        if let Some(i) = self.index {
+            self.index = Some(i + 1);
+        } else {
+            self.index = Some(0);
         }
     }
 
@@ -23,6 +28,11 @@ impl History {
             let reader = BufReader::new(file);
             for line in reader.lines().flatten() {
                 self.entries.push(line);
+                if let Some(i) = self.index {
+                    self.index = Some(i + 1);
+                } else {
+                    self.index = Some(0);
+                }
             }
         }
     }

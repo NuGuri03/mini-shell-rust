@@ -1,29 +1,25 @@
 mod io;
 mod shell;
 
+use shell::history::History;
 use shell::executor;
 use shell::parser;
-use shell::history::History;
+use io::raw_io;
 
 fn main() {
     let mut history = History::new();
     history.load_history("history.txt");
 
+    let original_termios = raw_io::enable_raw_mode();
+
     loop {
-        io::prompt::print_prompt();
+        history.push(String::from(""));
+        io::prompt::print_prompt("");
 
-        let mut input = String::new();
-        let bytes_read = std::io::stdin()
-            .read_line(&mut input)
-            .expect("Failed to read line");
-
+        let input = raw_io::read_input(&mut history);
         let input = input.trim();
-        history.push(input.to_string());
 
-        if bytes_read == 0 || input == "exit" {
-            if bytes_read == 0 {
-                println!();
-            }
+        if input == "exit" || input == "__EOF__" {
             history.save_history("history.txt");
             break;
         }
@@ -31,5 +27,7 @@ fn main() {
         let commands = parser::parse_input(input);
         executor::execute_command(commands);
     }
+
+    raw_io::disable_raw_mode(&original_termios);
     println!("Bye!");
 }
