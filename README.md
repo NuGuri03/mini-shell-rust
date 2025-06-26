@@ -39,9 +39,6 @@ cargo run
 - **Command History**
   - Save and recall previously executed commands
 
-- **Startup Configuration**
-Load commands from `.myshellrc` at launch
-
 ---
 
 ## 📁 Project Structure
@@ -50,11 +47,14 @@ mini-shell-rust/
 ├── src/
 │   ├── shell.rs
 │   ├── shell/
+│   │   ├── executor.rs 
+│   │   ├── history.rs 
 │   │   ├── parser.rs 
-│   │   └── executor.rs   
+│   │   └── redirect.rs   
 │   ├── io.rs
 │   ├── io/
-│   │   └── prompt.rs   
+│   │   ├── prompt.rs 
+│   │   └── raw_io.rs   
 │   └── main.rs   
 ├── .gitignore        
 ├── Cargo.lock        
