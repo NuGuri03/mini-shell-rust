@@ -50,11 +50,14 @@ mini-shell-rust/
 ├── src/
 │   ├── shell.rs
 │   ├── shell/
+│   │   ├── executor.rs 
+│   │   ├── history.rs 
 │   │   ├── parser.rs 
-│   │   └── executor.rs   
+│   │   └── redirect.rs   
 │   ├── io.rs
 │   ├── io/
-│   │   └── prompt.rs   
+│   │   ├── prompt.rs 
+│   │   └── raw_io.rs   
 │   └── main.rs   
 ├── .gitignore        
 ├── Cargo.lock        
