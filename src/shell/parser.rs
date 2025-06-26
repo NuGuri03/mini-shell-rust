@@ -4,6 +4,7 @@ pub struct Command {
     pub args: Vec<String>,
     pub stdin: Option<String>,
     pub stdout: Option<String>,
+    pub is_background : bool
 }
 
 #[derive(Debug)]
@@ -65,6 +66,7 @@ fn parse_tokens(tokens: Vec<String>) -> Command {
     let mut args = Vec::new();
     let mut stdin = None;
     let mut stdout = None;
+    let mut is_background = false;
 
     let mut i = 0;
     while i < tokens.len() {
@@ -83,6 +85,8 @@ fn parse_tokens(tokens: Vec<String>) -> Command {
             } else {
                 eprintln!("<: failed to redirect")
             }
+        } else if token == "&" {
+            is_background = true;
         } else {
             args.push(token);
         }
@@ -100,6 +104,7 @@ fn parse_tokens(tokens: Vec<String>) -> Command {
         args,
         stdin,
         stdout,
+        is_background
     }
 }
 
