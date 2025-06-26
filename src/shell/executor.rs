@@ -112,7 +112,14 @@ pub fn execute_command(commands: Vec<parser::Command>) {
         children.push(child);
     }
 
-    for mut child in children {
-        child.wait().expect("failed to wait child");
+    let is_background = commands.last().map(|c| c.is_background).unwrap_or(false);
+
+    if is_background {
+        let pids: Vec<u32> = children.iter().map(|c| c.id()).collect();
+        println!("[{}] {:?}", 1, pids);
+    } else {
+        for mut child in children {
+            child.wait().expect("failed to wait child");
+        }
     }
 }
