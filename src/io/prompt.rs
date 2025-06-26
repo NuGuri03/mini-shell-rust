@@ -7,8 +7,7 @@ pub fn print_prompt() {
     let host = whoami::devicename();
     let current_path = std::env::current_dir()
         .expect("failed to get current dir")
-        .to_str()
-        .expect("failed to parse &str")
+        .display()
         .to_string();
 
     let user_host = format!("{}@{}", username, host).bold().red();
