@@ -39,9 +39,6 @@ cargo run
 - **Command History**
   - Save and recall previously executed commands
 
-- **Startup Configuration**
-Load commands from `.myshellrc` at launch
-
 ---
 
 ## 📁 Project Structure
