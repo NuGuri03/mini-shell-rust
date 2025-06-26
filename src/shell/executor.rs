@@ -15,15 +15,14 @@ fn run_internal_command(command: &parser::Command) -> Result<bool, String> {
                 .map(String::as_str)
                 .ok_or("cd: missing argument")?;
 
-            std::env::set_current_dir(target)
-                .map_err(|e| format!("cd: {e}"))?;
+            std::env::set_current_dir(target).map_err(|e| format!("cd: {e}"))?;
 
             Ok(true)
         }
 
         Some("pwd") => {
-            let path = std::env::current_dir()
-                .map_err(|_| "pwd: failed to get current directory")?;
+            let path =
+                std::env::current_dir().map_err(|_| "pwd: failed to get current directory")?;
 
             println!("{}", path.display());
             Ok(true)
@@ -34,7 +33,10 @@ fn run_internal_command(command: &parser::Command) -> Result<bool, String> {
 }
 
 fn run_external_command(command: &parser::Command) {
-    match process::Command::new(&command.name).args(&command.args).spawn() {
+    match process::Command::new(&command.name)
+        .args(&command.args)
+        .spawn()
+    {
         Ok(mut child) => {
             if command.is_background {
                 println!("[{}] {}", 1, child.id());
@@ -43,7 +45,7 @@ fn run_external_command(command: &parser::Command) {
                     eprintln!("bash: failed to wait for process: {}", e);
                 }
             }
-        },
+        }
         Err(_) => {
             eprintln!("bash: command not found: {}", command.name);
         }
@@ -63,21 +65,21 @@ fn execute_single_command(command: &parser::Command) {
     }
 
     redirect::handle_redirection(&command);
-    
+
     match run_internal_command(&command) {
-        Ok(true) => {},
+        Ok(true) => {}
         Ok(false) => run_external_command(&command),
         Err(msg) => eprintln!("{}", msg),
     };
 
-    redirect::close_redirection(stdin, stdout);    
+    redirect::close_redirection(stdin, stdout);
 }
 
 pub fn execute_command(commands: Vec<parser::Command>) {
     if commands.len() == 1 {
         let command = &commands[0];
         execute_single_command(command);
-        return;    
+        return;
     }
 
     let mut previous_stdout = None;

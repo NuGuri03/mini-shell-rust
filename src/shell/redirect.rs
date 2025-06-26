@@ -1,11 +1,10 @@
 use crate::parser::Command;
 
+use nix::libc::{close, dup2};
 use std::fs::File;
 use std::os::unix::io::AsRawFd;
-use nix::libc::{dup2, close};
 
 pub fn handle_redirection(cmd: &Command) {
-    
     if let Some(ref input) = cmd.stdin {
         let input_file = File::open(input).expect("failed to open file");
         unsafe {
@@ -15,7 +14,7 @@ pub fn handle_redirection(cmd: &Command) {
             }
         }
     }
-    
+
     if let Some(ref output) = cmd.stdout {
         let output_file = File::create(output).expect("failed to create file");
         unsafe {
@@ -25,7 +24,6 @@ pub fn handle_redirection(cmd: &Command) {
             }
         }
     }
-    
 }
 
 pub fn close_redirection(stdin: i32, stdout: i32) {

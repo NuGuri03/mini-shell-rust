@@ -4,7 +4,7 @@ pub struct Command {
     pub args: Vec<String>,
     pub stdin: Option<String>,
     pub stdout: Option<String>,
-    pub is_background: bool
+    pub is_background: bool,
 }
 
 #[derive(Debug)]
@@ -92,7 +92,7 @@ fn parse_tokens(tokens: Vec<String>) -> Command {
         }
         i += 1;
     }
-    
+
     let name = if !args.is_empty() {
         args.remove(0)
     } else {
@@ -104,7 +104,7 @@ fn parse_tokens(tokens: Vec<String>) -> Command {
         args,
         stdin,
         stdout,
-        is_background
+        is_background,
     }
 }
 
